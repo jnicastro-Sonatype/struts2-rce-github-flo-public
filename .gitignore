@@ -1,0 +1,4 @@
+/.idea/
+/target/
+/struts2-rest-showcase.iml
+.DS_Store

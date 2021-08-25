@@ -1,0 +1,86 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Maven@3
+  displayName: 'Maven Package'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m -Drat.skip=true'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    goals: 'package'
+
+# - task: SonatypeLiftPipelineTask@1
+#   inputs:
+#     SonatypeLiftService: 'Sonatype Lift' # Replace with your Service Connection
+#     stage: 'develop' # develop stage will not fail the job
+#     applicationId: 'struts2-rce-github-flo' # Replace with your applicationId
+#     applicationDisplayName: '$(Build.Repository.Name)'
+- task: NexusIqPipelineTask@1
+  displayName: 'Nexus Platform Application Evaluation'
+  condition: ne(variables['Build.SourceBranch'], 'refs/heads/main-bad') 
+  inputs:
+    nexusIqService: 'iq.ngrok.io'
+    applicationId: 'struts2-rce-github-flo'
+    stage: 'source'
+    scanTargets: 'target/struts2-rest-showcase.war'
+    ignoreSystemError: true
+
+- task: Docker@2
+  displayName: 'Build Docker Image'
+  inputs:
+    containerRegistry: 'mcupitt-docker.ngrok.io'
+    repository: '$(container_name)'
+    command: 'build'
+    Dockerfile: '**/Dockerfile'
+    tags: '$(Build.BuildId)'
+    arguments: '--build-arg IQ_USER=$(user) --build-arg IQ_TOKEN=$(pass) --build-arg IQ_SERVER=$(iq_server) --build-arg IQ_STAGE=$(iq_stage)'
+
+- task: Bash@3
+  displayName: 'Get OS Installed Packages'
+  inputs:
+    targetType: 'inline'
+    script: 'docker run -t mcupitt-docker.ngrok.io/$(container_name):$(Build.BuildId) dpkg-query -W > debian-packages.txt'
+
+# - task: Bash@3
+#   displayName: 'Docker Save to tar file'
+#   inputs:
+#     targetType: 'inline'
+#     script: 'docker save -o scan_me/$(container_name).tar mcupitt-docker.ngrok.io/$(container_name):$(Build.BuildId)'
+
+- task: NexusIqPipelineTask@1
+  displayName: 'Nexus Platform FULL Evaluation'
+  inputs:
+    nexusIqService: 'iq.ngrok.io'
+    applicationId: 'struts2-rce-github-flo'
+    stage: 'stage-release'
+    # scanTargets: 'scan_me/*'
+    scanTargets: 'target/struts2-rest-showcase.war,debian-packages.txt,terraform/aws/aws.large.tfplan'
+    ignoreSystemError: true
+- task: Docker@2
+  displayName: 'Docker Push Image to Repo'
+  inputs:
+    containerRegistry: 'mcupitt-docker.ngrok.io'
+    repository: '$(container_name)'
+    command: 'push'
+    
+- task: NeuVectorScan@1
+  inputs:
+    controllerType: 'external'
+    neuvectorController: 'Nexus Container'
+    containerRegistry: 'mcupitt-docker.ngrok.io'
+    repository: '$(container_name)'
+    tag: '$(Build.BuildId)'
+    reportJsonOutputPath: '$(Build.ArtifactStagingDirectory)/neuvector-scan-report.json'
+    reportMarkdownOutputPath: '$(Build.ArtifactStagingDirectory)/neuvector-scan-report.md'

@@ -1,0 +1,33 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Evaluate - build" type="MavenRunConfiguration" factoryName="Maven">
+    <MavenSettings>
+      <option name="myGeneralSettings" />
+      <option name="myRunnerSettings" />
+      <option name="myRunnerParameters">
+        <MavenRunnerParameters>
+          <option name="profiles">
+            <set />
+          </option>
+          <option name="goals">
+            <list>
+              <option value="com.sonatype.clm:clm-maven-plugin:evaluate" />
+              <option value="-Dclm.stage=build" />
+              <option value="-Dclm.applicationId=struts2-rce-github-flo" />
+              <option value="-Dclm.additionalScopes=provided,system" />
+              <option value="-Dclm.serverUrl=http://localhost:8070" />
+              <option value="-Dclm.username=flo-dev" />
+              <option value="-Dclm.password=flo-dev" />
+            </list>
+          </option>
+          <option name="pomFileName" />
+          <option name="profilesMap">
+            <map />
+          </option>
+          <option name="resolveToWorkspace" value="false" />
+          <option name="workingDirPath" value="$PROJECT_DIR$" />
+        </MavenRunnerParameters>
+      </option>
+    </MavenSettings>
+    <method v="2" />
+  </configuration>
+</component>
