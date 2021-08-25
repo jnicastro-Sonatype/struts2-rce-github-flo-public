@@ -19,7 +19,7 @@ node () {
    }
 
     stage('Create TAG') {
-        createTag nexusInstanceId: 'Nexus-Repo', tagAttributesJson: "{\"IQScan\": \"${policyEvaluation.applicationCompositionReportUrl}\", \"JenkinsBuild\": \"${BUILD_URL}\"}", tagName: "IQ-Policy-Evaluation_${currentBuild.number}"
+        createTag nexusInstanceId: 'Nexus_Repo', tagAttributesJson: "{\"IQScan\": \"${policyEvaluation.applicationCompositionReportUrl}\", \"JenkinsBuild\": \"${BUILD_URL}\"}", tagName: "IQ-Policy-Evaluation_${currentBuild.number}"
     }
 
     stage('Publish') {
