@@ -12,8 +12,8 @@ node () {
    }
 
    stage('IQ Policy Check') {
-         env.GIT_REPO_NAME = env.GIT_URL.replaceFirst(/^.*\/([^\/]+?).git$/, '$1')
-         policyEvaluation = nexusPolicyEvaluation failBuildOnNetworkError: false, iqScanPatterns: [[scanPattern: '**/target/struts2-rest-showcase.war'], [scanPattern: '**/terraform/aws/aws.large.tfplan']], iqApplication: "${env.GIT_REPO_NAME}", iqStage: 'build', jobCredentialsId: ''
+         //env.GIT_REPO_NAME = env.GIT_URL.replaceFirst(/^.*\/([^\/]+?).git$/, '$1')
+         policyEvaluation = nexusPolicyEvaluation failBuildOnNetworkError: false, iqScanPatterns: [[scanPattern: '**/target/struts2-rest-showcase.war'], [scanPattern: '**/terraform/aws/aws.large.tfplan']], iqApplication: selectedApplication('struts2-rce-github-flo'), iqStage: 'build', jobCredentialsId: ''
         //policyEvaluation = nexusPolicyEvaluation advancedProperties: '', enableDebugLogging: true, failBuildOnNetworkError: false, iqApplication: selectedApplication('struts2-rce-github-flo'), iqScanPatterns: [[scanPattern: 'target/struts2-rest-showcase.war'], [scanPattern: 'terraform/aws/aws.large.tfplan']], iqStage: 'release', jobCredentialsId: ''
         sh "echo ${policyEvaluation.applicationCompositionReportUrl}"
    }
