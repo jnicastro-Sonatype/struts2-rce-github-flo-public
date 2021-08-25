@@ -19,11 +19,11 @@ node () {
    }
 
     stage('Create TAG') {
-        createTag nexusInstanceId: 'nxrm3', tagAttributesJson: "{\"IQScan\": \"${policyEvaluation.applicationCompositionReportUrl}\", \"JenkinsBuild\": \"${BUILD_URL}\"}", tagName: "IQ-Policy-Evaluation_${currentBuild.number}"
+        createTag nexusInstanceId: 'Nexus-Repo', tagAttributesJson: "{\"IQScan\": \"${policyEvaluation.applicationCompositionReportUrl}\", \"JenkinsBuild\": \"${BUILD_URL}\"}", tagName: "IQ-Policy-Evaluation_${currentBuild.number}"
     }
 
     stage('Publish') {
-        nexusPublisher nexusInstanceId: 'nxrm3', nexusRepositoryId: 'maven-releases', packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '', extension: 'war', filePath: './target/struts2-rest-showcase.war']], mavenCoordinate: [artifactId: 'struts2-rest-showcase', groupId: 'org.apache.struts', packaging: 'war', version: '2.5.10']]], tagName: "IQ-Policy-Evaluation_${currentBuild.number}"
+        nexusPublisher nexusInstanceId: 'Nexus_Repo', nexusRepositoryId: 'maven-releases', packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '', extension: 'war', filePath: './target/struts2-rest-showcase.war']], mavenCoordinate: [artifactId: 'struts2-rest-showcase', groupId: 'org.apache.struts', packaging: 'war', version: '2.5.10']]], tagName: "IQ-Policy-Evaluation_${currentBuild.number}"
     }
 }  
 
